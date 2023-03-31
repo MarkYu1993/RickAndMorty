@@ -35,6 +35,9 @@ final class RMCharacterListView: UIView {
         cv.alpha = 0
         cv.register(RMCharacterCollectionViewCell.self,
                     forCellWithReuseIdentifier: RMCharacterCollectionViewCell.identifier)
+        cv.register(RMFooterLoadingCollectionReusableView.self,
+                    forSupplementaryViewOfKind: UICollectionView.elementKindSectionFooter,
+                    withReuseIdentifier: RMFooterLoadingCollectionReusableView.identifier)
         return cv
     }()
     
@@ -74,6 +77,12 @@ final class RMCharacterListView: UIView {
 }
 
 extension RMCharacterListView: RMCharacterListViewViewModelDelegate {
+    func didLoadMoreCharacters(with newIndexPath: [IndexPath]) {
+        collectionView.performBatchUpdates {
+            self.collectionView.insertItems(at: newIndexPath)
+        }
+    }
+    
     func didSelectCharacter(_ character: RMCharacter) {
         delegate?.rmCharacterListView(self, didSelectCharacter: character)
     }

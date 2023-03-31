@@ -8,12 +8,17 @@ import UIKit
 
 protocol RMCharacterListViewViewModelDelegate: AnyObject {
     func didLoadInitialCharacters()
+    func didLoadMoreCharacters(with newIndexPath: [IndexPath])
+    
     func didSelectCharacter(_ character: RMCharacter)
 }
 
 /// ViewModel to handle character list view logic
 final class RMCharacterListViewViewModel: NSObject {
     public weak var delegate: RMCharacterListViewViewModelDelegate?
+    
+    /// 用於下拉載入時的開關(避免重複Fetch data)
+    private var isLoadingMoreCharacters = false
     
     private var characters: [RMCharacter] = [] {
         didSet {
@@ -22,7 +27,9 @@ final class RMCharacterListViewViewModel: NSObject {
                     characterName: character.name,
                     characterStatus: character.status,
                     characterImageUrl: URL(string: character.image))
-                cellViewModels.append(viewModel)
+                if !cellViewModels.contains(viewModel) {
+                    cellViewModels.append(viewModel)
+                }
             }
         }
     }
@@ -53,8 +60,43 @@ final class RMCharacterListViewViewModel: NSObject {
     }
     
     /// Paginate if addtional characters are needed
-    public func fetchAdditionalCharacters() {
-        // Fetch characters
+    public func fetchAdditionalCharacters(url: URL) {
+        guard !isLoadingMoreCharacters else {return}
+        
+        isLoadingMoreCharacters = true
+        
+        guard let request = RMRequest(url: url) else {
+            isLoadingMoreCharacters = false
+            return
+        }
+        RMService.shared.execute(request,
+                                 expecting: RMGetAllCharactersResponse.self) { [weak self] result in
+            guard let strongSelf = self else {return}
+            switch result {
+            case .success(let responseModel):
+                let moreResults = responseModel.results
+                let info = responseModel.info
+                strongSelf.apiInfo = info
+
+                let originalCount = strongSelf.characters.count
+                let newCount = moreResults.count
+                let total = originalCount + newCount
+                let startingIndex = total - newCount
+                let indexPathsToAdd: [IndexPath] = Array(startingIndex..<(startingIndex + newCount)).compactMap({
+                    return IndexPath(row: $0, section: 0)
+                })
+                strongSelf.characters.append(contentsOf: moreResults)
+                DispatchQueue.main.async {
+                    strongSelf.delegate?.didLoadMoreCharacters(
+                        with: indexPathsToAdd
+                    )
+                    strongSelf.isLoadingMoreCharacters = false
+                }
+
+            case .failure(let failure):
+                strongSelf.isLoadingMoreCharacters = false
+            }
+        }
     }
     
     public var shouldShowLoadMoreIndicator: Bool {
@@ -85,6 +127,29 @@ extension RMCharacterListViewViewModel: UICollectionViewDataSource, UICollection
         return CGSize(width: width, height: height)
     }
     
+    func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
+        guard kind == UICollectionView.elementKindSectionFooter, shouldShowLoadMoreIndicator else {
+            fatalError("Unsupported")
+        }
+        
+        guard let footer = collectionView.dequeueReusableSupplementaryView(
+            ofKind: kind,
+            withReuseIdentifier: RMFooterLoadingCollectionReusableView.identifier,
+            for: indexPath) as? RMFooterLoadingCollectionReusableView
+        else {
+            fatalError("Unsupported")
+        }
+        footer.startAnitmating()
+        return footer
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForFooterInSection section: Int) -> CGSize {
+        guard shouldShowLoadMoreIndicator else {
+            return .zero
+        }
+        return CGSize(width: collectionView.frame.width, height: 100)
+    }
+    
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         collectionView.deselectItem(at: indexPath, animated: true)
         let character = characters[indexPath.row]
@@ -95,8 +160,27 @@ extension RMCharacterListViewViewModel: UICollectionViewDataSource, UICollection
 // MARK: - ScrollView
 extension RMCharacterListViewViewModel: UIScrollViewDelegate {
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        guard shouldShowLoadMoreIndicator else {
+        guard shouldShowLoadMoreIndicator,
+              !isLoadingMoreCharacters,
+              !cellViewModels.isEmpty,
+              let nextUrlString = apiInfo?.next,
+              let url = URL(string: nextUrlString) else {
             return
         }
+        Timer.scheduledTimer(withTimeInterval: 0.2, repeats: false) { [weak self] t in
+            /// scrollView往下移動的距離
+            let offset = scrollView.contentOffset.y
+            /// scrollView包含內容整體的高度(從頭捲到底加起來的高度)
+            let totalContentHeight = scrollView.contentSize.height
+            /// scrollView外表的高度
+            let totalScrollViewFixedHeight = scrollView.frame.size.height
+            
+            /// 這裡的120是底部view的高度(100)
+            if offset >= (totalContentHeight - totalScrollViewFixedHeight - 120) {
+                self?.fetchAdditionalCharacters(url: url)
+            }
+            t.invalidate()
+        }
+        
     }
 }
