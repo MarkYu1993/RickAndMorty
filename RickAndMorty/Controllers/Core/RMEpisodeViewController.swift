@@ -7,12 +7,35 @@
 
 import UIKit
 
-/// Controller to show and search for Episodes
+/// Conrtoller to show and search for Characters
 final class RMEpisodeViewController: UIViewController {
 
+    private let episodeListView = RMEpisodeListView()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .systemBackground
         self.title = "Episodes"
+        setUpView()
+    }
+    
+    private func setUpView() {
+        episodeListView.delegate = self
+        view.backgroundColor = .systemBackground
+        view.addSubview(episodeListView)
+        episodeListView.snp.makeConstraints {
+            $0.top.leading.trailing.bottom.equalTo(view.safeAreaLayoutGuide)
+        }
+    }
+}
+
+// MARK: - RMEpisodeListViewDelegate
+extension RMEpisodeViewController: RMEpisodeListViewDelegate {
+    func rmEpisodeListView(_ episodeListView: RMEpisodeListView, didSelectEpisode episode: RMEpisode) {
+        // Open detail controller for that episode
+        let url = URL(string: episode.url)
+        let viewModel = RMEpisodeDetailViewViewModel(endpointUrl: url)
+        let detailVC = RMEpisodeDetailViewController(url: url)
+        detailVC.navigationItem.largeTitleDisplayMode = .never
+        navigationController?.pushViewController(detailVC, animated: true)
     }
 }
