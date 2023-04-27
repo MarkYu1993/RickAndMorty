@@ -7,13 +7,22 @@
 
 import UIKit
 
+protocol RMSearchViewDelegate: AnyObject {
+    func rmSearchView(_ searchView: RMSearchView,
+                      didSelectOption: RMSearchInputViewViewModel.DynamicOption)
+}
+
 final class RMSearchView: UIView {
+    
+    weak var delegate: RMSearchViewDelegate?
     
     let viewModel: RMSearchViewViewModel
     
     // MARK: - Subviews
     
     // SearchInputView(bar, selection buttons)
+    
+    private let searchInputView = RMSearchInputView()
     
     private let noResultsView = RMNoSearchResultsView()
     
@@ -27,8 +36,11 @@ final class RMSearchView: UIView {
         self.viewModel = viewModel
         super.init(frame: frame)
         backgroundColor = .systemBackground
-        addSubviews(noResultsView)
+        addSubviews(noResultsView, searchInputView)
         addConstraints()
+        
+        searchInputView.configure(with: RMSearchInputViewViewModel(type: viewModel.config.type))
+        searchInputView.delegate = self
     }
     
     required init?(coder: NSCoder) {
@@ -36,10 +48,21 @@ final class RMSearchView: UIView {
     }
     
     private func addConstraints() {
+        // Search input view
+        searchInputView.snp.makeConstraints {
+            $0.top.leading.trailing.equalToSuperview()
+            $0.height.equalTo(viewModel.config.type == .episode ? 55 : 110)
+        }
+        
+        // No results
         noResultsView.snp.makeConstraints {
             $0.width.height.equalTo(150)
             $0.centerX.centerY.equalToSuperview()
         }
+    }
+    
+    public func presentKeyboard() {
+        searchInputView.presentKeyboard()
     }
     
 }
@@ -58,5 +81,14 @@ extension RMSearchView: UICollectionViewDelegate, UICollectionViewDataSource {
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         collectionView.deselectItem(at: indexPath, animated: true)
+    }
+}
+
+// MARK: - RMSearchInputViewDelegate
+
+extension RMSearchView: RMSearchInputViewDelegate {
+    func rmSearchInputView(_ inputView: RMSearchInputView, didSelectOption option: RMSearchInputViewViewModel.DynamicOption) {
+        delegate?.rmSearchView(self,
+                               didSelectOption: option)
     }
 }
