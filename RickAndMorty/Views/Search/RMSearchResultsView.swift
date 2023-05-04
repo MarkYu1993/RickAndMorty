@@ -48,7 +48,10 @@ final class RMSearchResultsView: UIView {
         return cv
     }()
     
+    ///  TableView ViewModels
     private var locationCellViewModels: [RMLocationTableViewCellViewModel] = []
+    
+    /// CollectionView ViewModels
     private var collectionViewCellViewModels: [any Hashable] = []
     
     // MARK: - Init
@@ -69,7 +72,7 @@ final class RMSearchResultsView: UIView {
             return
         }
         
-        switch viewModel {
+        switch viewModel.results {
         case .characters(let viewModels):
             self.collectionViewCellViewModels = viewModels
             setUpCollectionView()
@@ -185,5 +188,60 @@ extension RMSearchResultsView: UICollectionViewDelegate, UICollectionViewDataSou
 //        let bounds = collectionView.bounds
         let width = bounds.width-20
         return CGSize(width: width, height: 100)
+    }
+}
+
+// MARK: - ScrollViewDelegate
+
+extension RMSearchResultsView: UIScrollViewDelegate {
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        if !locationCellViewModels.isEmpty {
+            handleLocationPagination(scrollView: scrollView)
+        } else {
+            // collectionView
+            handleCharacterOrEpisodePagination(scrollView: scrollView)
+        }
+        
+    }
+    
+    private func handleCharacterOrEpisodePagination(scrollView: UIScrollView) {
+        
+    }
+    
+    private func handleLocationPagination(scrollView: UIScrollView) {
+        guard let viewModel = viewModel,
+              !locationCellViewModels.isEmpty,
+              viewModel.shouldShowLoadMoreIndicator,
+              !viewModel.isLoadingMoreResults else {
+            return
+        }
+        
+        Timer.scheduledTimer(withTimeInterval: 0.2, repeats: false) { [weak self] t in
+            /// scrollView往下移動的距離
+            let offset = scrollView.contentOffset.y
+            /// scrollView包含內容整體的高度(從頭捲到底加起來的高度)
+            let totalContentHeight = scrollView.contentSize.height
+            /// scrollView外表的高度
+            let totalScrollViewFixedHeight = scrollView.frame.size.height
+
+            /// 這裡的120是底部view的高度(100)
+            if offset >= (totalContentHeight - totalScrollViewFixedHeight - 120) {
+                DispatchQueue.main.async {
+                    self?.showLoadingIndicator()
+                }
+                viewModel.fetchAdditionalLocations { [weak self] newResults in
+                    // Refresh table
+                    self?.tableView.tableFooterView = nil
+                    self?.locationCellViewModels = newResults
+                    self?.tableView.reloadData()
+                }
+            }
+            t.invalidate()
+        }
+    }
+    
+    private func showLoadingIndicator() {
+        let footer = RMTableLoadingFooterView(frame: CGRect(x: 0, y: 0, width: frame.size.width, height: 100))
+        tableView.tableFooterView = footer
     }
 }
