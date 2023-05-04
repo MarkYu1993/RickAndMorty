@@ -75,6 +75,7 @@
 		E4ABC9DC29D535BC000048E2 /* RMCharacterDetailViewViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4ABC9DB29D535BC000048E2 /* RMCharacterDetailViewViewModel.swift */; };
 		E4ABC9DE29D541CE000048E2 /* RMFooterLoadingCollectionReusableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4ABC9DD29D541CE000048E2 /* RMFooterLoadingCollectionReusableView.swift */; };
 		E4ABC9E029D680B3000048E2 /* RMImageLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4ABC9DF29D680B3000048E2 /* RMImageLoader.swift */; };
+		E4ED134E2A025D06001E80FA /* RMTableLoadingFooterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4ED134D2A025D06001E80FA /* RMTableLoadingFooterView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -147,6 +148,7 @@
 		E4ABC9DB29D535BC000048E2 /* RMCharacterDetailViewViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RMCharacterDetailViewViewModel.swift; sourceTree = "<group>"; };
 		E4ABC9DD29D541CE000048E2 /* RMFooterLoadingCollectionReusableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RMFooterLoadingCollectionReusableView.swift; sourceTree = "<group>"; };
 		E4ABC9DF29D680B3000048E2 /* RMImageLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RMImageLoader.swift; sourceTree = "<group>"; };
+		E4ED134D2A025D06001E80FA /* RMTableLoadingFooterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RMTableLoadingFooterView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -210,6 +212,7 @@
 			children = (
 				E489D3EA29F7BD1900E16FCE /* RMLocationView.swift */,
 				E489D3F029F7CAE000E16FCE /* RMLocationTableViewCell.swift */,
+				E4ED134D2A025D06001E80FA /* RMTableLoadingFooterView.swift */,
 			);
 			path = Location;
 			sourceTree = "<group>";
@@ -544,6 +547,7 @@
 				E489D40229F9131D00E16FCE /* RMNoSearchResultsView.swift in Sources */,
 				E4ABC9DE29D541CE000048E2 /* RMFooterLoadingCollectionReusableView.swift in Sources */,
 				E46AE84029EE865200909E30 /* RMEpisodeListView.swift in Sources */,
+				E4ED134E2A025D06001E80FA /* RMTableLoadingFooterView.swift in Sources */,
 				E4ABC9AD29D2E16C000048E2 /* RMEpisode.swift in Sources */,
 				E4ABC98E29D2DD1E000048E2 /* RMTabBarController.swift in Sources */,
 				E489D3EF29F7C63600E16FCE /* RMGetAllLocationsResponse.swift in Sources */,
@@ -740,6 +744,7 @@
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -769,6 +774,7 @@
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",

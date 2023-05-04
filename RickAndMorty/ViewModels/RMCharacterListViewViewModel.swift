@@ -120,10 +120,18 @@ extension RMCharacterListViewViewModel: UICollectionViewDataSource, UICollection
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        let bounds = UIScreen.main.bounds
-        let width = (bounds.width - 30) / 2 // 左邊 右邊 跟中間 各10
-        let height = width*1.5
-        return CGSize(width: width, height: height)
+        
+        // TODO: Abstact to extension
+        let isIphone = UIDevice.current.userInterfaceIdiom == .phone
+        let bounds = collectionView.bounds
+        let width: CGFloat
+        if isIphone {
+            width = (bounds.width - 30) / 2 // 左邊 右邊 跟中間 各10
+        } else {
+            // Mac | iPad
+            width = (bounds.width-50) / 4
+        }
+        return CGSize(width: width, height: width*1.5)
     }
     
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
