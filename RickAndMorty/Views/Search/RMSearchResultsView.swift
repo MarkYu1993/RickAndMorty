@@ -181,13 +181,11 @@ extension RMSearchResultsView: UICollectionViewDelegate, UICollectionViewDataSou
         
         if currentViewModel is RMCharacterCollectionViewCellViewModel {
             // Character size
-//            let bounds = UIScreen.main.bounds
-            let width = (bounds.width-30)/2
+            let width = UIDevice.isIphone ? (bounds.width-30)/2 : (bounds.width-50)/4
             return CGSize(width: width, height: width*1.5)
         }
         // Episode Size
-//        let bounds = collectionView.bounds
-        let width = bounds.width-20
+        let width = UIDevice.isIphone ? bounds.width-20 : (bounds.width-50) / 4
         return CGSize(width: width, height: 100)
     }
     
@@ -266,7 +264,7 @@ extension RMSearchResultsView: UIScrollViewDelegate {
             t.invalidate()
         }
     }
-    
+                            
     private func handleLocationPagination(scrollView: UIScrollView) {
         guard let viewModel = viewModel,
               !locationCellViewModels.isEmpty,
